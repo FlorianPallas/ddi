@@ -1,4 +1,4 @@
-import { ILogSink, Logger, type LogEvent, LogLevel } from "./logging.ts";
+import { ILogSink, Logger, LogLevel, MockLogSink } from "./logging.ts";
 import { App } from "./app.ts";
 import { assertArrayIncludes, assertEquals } from "@std/assert";
 
@@ -24,14 +24,6 @@ class UserService {
         .map((user) => `Hello ${user.name}`)
         .join("\n")
     );
-  }
-}
-
-class MockLogSink implements ILogSink {
-  events: LogEvent[] = [];
-
-  log(event: LogEvent) {
-    this.events.push(event);
   }
 }
 

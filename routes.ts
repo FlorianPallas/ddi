@@ -1,10 +1,19 @@
 import type { Route } from "@std/http/unstable-route";
 import { Logger, type App } from "./mod.ts";
 
+/**
+ * A controller is a class that provides routes.
+ */
 export interface IController {
+  /**
+   * Returns all routes provided by this controller.
+   */
   getRoutes(): Route[];
 }
 
+/**
+ * The RouteProvider aggregates all controllers and provides their routes.
+ */
 export class RouteProvider implements IController {
   private readonly logger: Logger;
   private readonly controllers: IController[];
