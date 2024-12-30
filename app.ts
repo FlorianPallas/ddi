@@ -21,7 +21,7 @@ export class App {
     module(this);
   }
 
-  register(type: Type, alias?: Alias) {
+  register<T>(type: Type<T>, alias?: Alias<T>) {
     this.setType(type.name, type);
     this.logger?.debug("Registered type:", type.name);
 
@@ -31,6 +31,11 @@ export class App {
       this.aliases.set(type.name, alias.name);
       this.logger?.debug("Registered alias:", alias.name);
     }
+  }
+
+  registerValue<T>(value: T, alias: Alias<T>) {
+    this.instances.set(alias.name, value);
+    this.logger?.debug("Registered value under alias:", alias.name);
   }
 
   resolve<T>(symbol: Type<T> | Alias<T>): T {
