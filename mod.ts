@@ -10,7 +10,8 @@
  * By using aliases, you can easily define interfaces and swap implementations.
  *
  * @example
- * import { App, loggingModule, RouteProvider } from "@fpallas/ddi";
+ * ```ts
+ * import { App, loggingModule, RouteProvider, IController, Logger } from "@fpallas/ddi";
  * import { route, Route } from "@std/http/unstable-route";
  *
  * class Service {
@@ -34,11 +35,14 @@
  *   }
  *
  *   getRoutes(): Route[] {
- *     return {
- *       method: ["GET"],
- *       pattern: new URLPattern({ pathname: "/hello/:name" }),
- *       handler: (_req, info) => this.service.greet(info?.pathname.groups.name),
- *     },
+ *     return [
+ *       {
+ *         method: ["GET"],
+ *         pattern: new URLPattern({ pathname: "/hello/:name" }),
+ *         handler: (_req, info) =>
+ *           new Response(this.service.greet(info?.pathname.groups.name)),
+ *       },
+ *     ];
  *   }
  * }
  *
@@ -64,6 +68,7 @@
  * export default {
  *   fetch: route(routes, defaultHandler),
  * } satisfies Deno.ServeDefaultExport;
+ * ```
  */
 export * from "./app.ts";
 export * from "./logging.ts";
