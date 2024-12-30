@@ -7,6 +7,7 @@ export type Type<T = any> = new (app: App) => T;
 export class Alias<T = any> {
   constructor(public name: string) {}
 }
+export type Resolve<T extends Alias> = T extends Alias<infer U> ? U : never;
 
 export type Module = (app: App) => void;
 
