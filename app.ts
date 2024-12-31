@@ -152,12 +152,10 @@ export class App {
    * @returns all instances that match the search text
    */
   resolveAll<T>(text: string): T[] {
-    return this.types
-      .entries()
+    return [...this.types.entries()]
       .filter(([key]) => !this.aliases.has(key)) // exclude aliased types
       .filter(([key]) => key.toLowerCase().includes(text.toLowerCase())) // case-insensitive search
-      .map(([_, type]) => this.resolve(type) as T) // resolve instance
-      .toArray();
+      .map(([_, type]) => this.resolve(type) as T); // resolve instance
   }
 
   private setType(key: string, type: Type) {
