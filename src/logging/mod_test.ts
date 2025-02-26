@@ -1,6 +1,7 @@
-import { ILogSink, Logger, LogLevel, MockLogSink } from "./logging.ts";
-import { App } from "./app.ts";
-import { assertArrayIncludes, assertEquals } from "@std/assert";
+import { assertArrayIncludes } from "@std/assert";
+import { Logger, MockLogSink } from "./mod.ts";
+import { App } from "../core/app.ts";
+import { LogLevel } from "./common.ts";
 
 class UserRepository {
   getUsers() {
@@ -22,31 +23,22 @@ class UserService {
       this.userRepository
         .getUsers()
         .map((user) => `Hello ${user.name}`)
-        .join("\n")
+        .join("\n"),
     );
   }
 }
 
 Deno.test(function addTest() {
   const app = new App();
-
-  // Logging
-  app.register(MockLogSink, ILogSink);
-  const mockLogSink = app.resolve(MockLogSink);
-
-  // Registered alias should resolve to the same instance
-  assertEquals(app.resolve(MockLogSink), app.resolve(ILogSink));
-
   app.register(Logger);
-
-  // System Under Test
+  app.register(MockLogSink);
   app.register(UserRepository);
   app.register(UserService);
 
   const userService = app.resolve(UserService);
   userService.greetAllUsers();
 
-  assertArrayIncludes(mockLogSink.events, [
+  assertArrayIncludes(app.resolve(MockLogSink).events, [
     { name: "UserService", args: ["Hello Jane"], level: LogLevel.Debug },
   ]);
 });
