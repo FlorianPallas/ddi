@@ -5,6 +5,7 @@
 [![JSR](https://jsr.io/badges/@fpallas/ddi)](https://jsr.io/@fpallas/ddi)
 [![JSR Score](https://jsr.io/badges/@fpallas/ddi/score)](https://jsr.io/@fpallas/ddi)
 [![JSR Scope](https://jsr.io/badges/@fpallas)](https://jsr.io/@fpallas)
+[![Build](https://github.com/FlorianPallas/ddi/actions/workflows/build.yml/badge.svg)](https://github.com/FlorianPallas/ddi/actions/workflows/build.yml)
 
 ---
 
