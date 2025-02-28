@@ -29,9 +29,7 @@ class UserService {
 }
 
 Deno.test(function addTest() {
-  const app = new App();
-  app.register(Logger);
-  app.register(MockLogSink);
+  const app = new App({ LogSink: MockLogSink });
   app.register(UserRepository);
   app.register(UserService);
 

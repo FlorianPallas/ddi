@@ -1,21 +1,23 @@
 // deno-lint-ignore-file
 import { assertEquals } from "@std/assert";
-import { HTTP } from "./mod.ts";
+import { Controller } from "./mod.ts";
 import { App } from "../core/app.ts";
-import { getRoutingHandler } from "./routes.ts";
+import { Route } from "./route.ts";
 
 Deno.test(async function routing() {
+  @Controller()
   class FooController {
     #response: string = "foo";
 
-    @HTTP.Get("/foo")
+    @Route("GET", "/foo")
     foo() {
       return new Response(this.#response);
     }
   }
 
+  @Controller()
   class BarController {
-    @HTTP.Post("/bar")
+    @Route("POST", "/bar")
     bar() {
       return new Response("bar");
     }
@@ -26,7 +28,7 @@ Deno.test(async function routing() {
   app.register(FooController);
   app.register(BarController);
 
-  const handler = getRoutingHandler(app);
+  const handler = app.serve();
 
   assertEquals(
     await (await handler(new Request("http://localhost/baz"), {} as any))

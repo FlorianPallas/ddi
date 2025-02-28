@@ -1,45 +1,84 @@
-import type { App } from "../core/app.ts";
-import { getMetadataKey } from "../metadata/utils.ts";
-import { MIDDLEWARE_METADATA } from "./decorators.ts";
+import { MetadataDef, type Resolvable } from "../core/common.ts";
+import { TypedMetadata } from "../metadata/decorators.ts";
+import { type ClassDecorator, mutateContextKey } from "../metadata/utils.ts";
+import type { RouteHandler, RouteKey } from "./common.ts";
 
-export type MiddlewareHandler = IMiddleware["onRequest"];
+export const DEFAULT_OPTIONS: MiddlewareOptions = {
+  priority: 0,
+  global: false,
+};
+
+export type MiddlewareOptions = {
+  priority: number;
+  global: boolean;
+};
+
+export const MIDDLEWARE_METADATA: MetadataDef<MiddlewareOptions> =
+  new MetadataDef(Symbol("ddi.stereotypes.middleware"));
+
+export const Middleware = (
+  options?: Partial<MiddlewareOptions>,
+): ClassDecorator<IMiddleware> =>
+  TypedMetadata(MIDDLEWARE_METADATA, { ...DEFAULT_OPTIONS, ...options });
 
 export interface IMiddleware {
-  onRequest(
+  onRequest: (
+    next: RouteHandler,
     request: Request,
-    info: Deno.ServeHandlerInfo,
-    next: Deno.ServeHandler,
-  ): Response | Promise<Response>;
+    params?: URLPatternResult,
+    info?: Deno.ServeHandlerInfo,
+  ) => Response | Promise<Response>;
 }
 
-export function getMiddlewareHandler(
-  app: App,
-  handler: Deno.ServeHandler,
-): Deno.ServeHandler {
-  const middleware = app
-    .getTypes()
-    .map((type) => [type, getMetadataKey(type, MIDDLEWARE_METADATA)] as const)
-    .filter(([, metadata]) => metadata !== undefined)
-    .map(([type, metadata]) => {
-      const instance = app.resolve<IMiddleware>(type);
-      return {
-        priority: metadata!.priority,
-        handler: instance.onRequest.bind(instance),
-      };
-    })
-    .sort((a, b) => a.priority - b.priority)
-    .map((m) => m.handler);
+export const withMiddleware = (
+  middleware: IMiddleware[],
+  handler: RouteHandler,
+): RouteHandler => applyMiddleware(middleware.toReversed(), 0, handler);
 
-  return wrap(middleware, handler);
-}
-
-function wrap(
-  stack: MiddlewareHandler[],
-  handler: Deno.ServeHandler,
-): Deno.ServeHandler {
-  const next = stack.pop();
-  if (!next) {
+function applyMiddleware(
+  middleware: IMiddleware[],
+  cursor: number,
+  handler: RouteHandler,
+): RouteHandler {
+  const instance = middleware[cursor];
+  if (!instance) {
     return handler;
   }
-  return (req, info) => next(req, info, wrap(stack, handler));
+  return (req, info) =>
+    instance.onRequest(
+      applyMiddleware(middleware, cursor + 1, handler),
+      req,
+      info,
+    );
 }
+
+export const WITH_MIDDLEWARE_METADATA: MetadataDef<
+  {
+    controller: Resolvable<IMiddleware>[];
+    perRoute: Record<RouteKey, Resolvable<IMiddleware>[]>;
+  }
+> = new MetadataDef(Symbol("ddi.withMiddleware"));
+
+export const WithMiddleware = <T>(middleware: Resolvable<T>) =>
+(
+  // only allow the decorator to be applied if the type is actually a middleware
+  target: T extends IMiddleware ? any : never,
+  context: ClassDecoratorContext | ClassMethodDecoratorContext,
+) => {
+  mutateContextKey(context, WITH_MIDDLEWARE_METADATA, (existing) => {
+    const data = existing ?? { controller: [], perRoute: {} };
+
+    if (context.kind === "class") {
+      data.controller.push(middleware);
+    }
+
+    if (context.kind === "method") {
+      const perRoute = data.perRoute[context.name] ?? [];
+      perRoute.push(middleware);
+      data.perRoute[context.name] = perRoute;
+    }
+
+    return data;
+  });
+  return target;
+};

@@ -1,10 +1,6 @@
 import type { App } from "./app.ts";
 
-/**
- * A named type can be either a type or an alias.
- * They both have a name that can be used to look them up.
- */
-export type Named<T = unknown> = Type<T> | Alias<T>;
+export type Resolvable<T = unknown> = Type<T> | Alias<T>;
 
 /**
  * A type defines a class that produces a certain type of object.

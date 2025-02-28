@@ -32,13 +32,13 @@ export function setMetadataKey<T>(target: any, def: MetadataDef<T>, value: T) {
 }
 
 export function getMetadataKey<T>(
-  target: Type,
+  target: any,
   def: MetadataDef<T>,
 ): T | undefined {
   return getMetadata(target)?.[def.name] as T | undefined;
 }
 
-export function hasMetadataKey(target: Type, def: MetadataDef): boolean {
+export function hasMetadataKey(target: any, def: MetadataDef): boolean {
   const metadata = getMetadata(target);
   return !!metadata && def.name in metadata;
 }

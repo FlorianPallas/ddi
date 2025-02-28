@@ -1,9 +1,9 @@
+import { ArrayMetadata } from "../metadata/decorators.ts";
 import type { ClassDecorator } from "../metadata/mod.ts";
-import { mutateContextKey } from "../metadata/utils.ts";
 import { type Alias, MetadataDef } from "./common.ts";
 
 export const PROVIDES_METADATA: MetadataDef<Alias[]> = new MetadataDef(
-  Symbol("ddi:provides"),
+  Symbol("ddi.provides"),
 );
 
 /**
@@ -13,12 +13,5 @@ export const PROVIDES_METADATA: MetadataDef<Alias[]> = new MetadataDef(
  * @param alias the alias the class provides
  * @returns the class decorator
  */
-export const Provides =
-  <T>(alias: Alias<T>): ClassDecorator<T> => (target, context) => {
-    mutateContextKey(context, PROVIDES_METADATA, (aliases) => {
-      const newAliases = aliases ?? [];
-      newAliases.push(alias);
-      return newAliases;
-    });
-    return target;
-  };
+export const Provides = <T>(alias: Alias<T>): ClassDecorator<T> =>
+  ArrayMetadata(PROVIDES_METADATA, alias);

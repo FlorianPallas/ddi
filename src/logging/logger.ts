@@ -1,5 +1,5 @@
 import type { App } from "../core/app.ts";
-import { Alias, type Named } from "../core/common.ts";
+import { Alias, type Resolvable } from "../core/common.ts";
 import { type LogEvent, LogLevel, type Printable } from "./common.ts";
 
 /**
@@ -30,7 +30,7 @@ export class Logger {
     this.sink = app.resolve(ILogSink);
   }
 
-  named(from: string | Named): Logger {
+  named(from: string | Resolvable): Logger {
     return new Logger(this.app, typeof from === "string" ? from : from.name);
   }
 
