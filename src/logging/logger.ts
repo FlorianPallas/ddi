@@ -38,6 +38,10 @@ export class Logger {
     this.sink.log({ name: this.name, level: LogLevel.Debug, args });
   }
 
+  log(...args: Printable[]) {
+    this.sink.log({ name: this.name, level: LogLevel.Log, args });
+  }
+
   info(...args: Printable[]) {
     this.sink.log({ name: this.name, level: LogLevel.Info, args });
   }

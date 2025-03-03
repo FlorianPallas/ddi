@@ -30,6 +30,8 @@ export class ConsoleLogSink implements ILogSink {
     switch (level) {
       case LogLevel.Debug:
         return "DEBUG";
+      case LogLevel.Log:
+        return "  LOG";
       case LogLevel.Info:
         return " INFO";
       case LogLevel.Warning:
@@ -58,6 +60,8 @@ export class ConsoleLogSink implements ILogSink {
     switch (level) {
       case LogLevel.Debug:
         return "color: gray";
+      case LogLevel.Log:
+        return "color: white";
       case LogLevel.Info:
         return "color: blue";
       case LogLevel.Warning:
